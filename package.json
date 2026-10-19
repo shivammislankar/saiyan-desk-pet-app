@@ -1,0 +1,58 @@
+{
+  "name": "saiyan-desk-pet",
+  "version": "0.2.0",
+  "description": "An original pixel-art Goku desktop companion",
+  "main": "dist/main/main.js",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "npm run build && electron .",
+    "start": "node scripts/copy-assets.js && node scripts/bundle-renderer.js && electron .",
+    "build": "tsc && node scripts/copy-assets.js && node scripts/bundle-renderer.js",
+    "build:pack": "npm run build && electron-builder --publish never",
+    "build:win": "npm run build && electron-builder --win --publish never",
+    "build:mac": "npm run build && electron-builder --mac --publish never",
+    "lint": "eslint src/ scripts/ tests/",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "generate-sprites": "tsc --project tsconfig.scripts.json && node dist-scripts/generate-placeholder-sprites.js",
+    "pack-sheets": "tsc --project tsconfig.scripts.json && node dist-scripts/pack-sprite-sheets.js",
+    "verify-assets": "tsc --project tsconfig.scripts.json && node dist-scripts/verify-assets.js",
+    "validate-pack": "tsc --project tsconfig.scripts.json && node dist-scripts/validate-pack.js",
+    "check-privacy": "tsc --project tsconfig.scripts.json && node dist-scripts/check-privacy-invariants.js",
+    "check-licenses": "tsc --project tsconfig.scripts.json && node dist-scripts/check-licenses.js",
+    "import-pack": "tsc --project tsconfig.scripts.json && node dist-scripts/import-pack.js"
+  },
+  "keywords": [
+    "desktop-pet",
+    "electron",
+    "pixel-art",
+    "goku",
+    "canvas"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "electron": "^44.7.2",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.17.0",
+    "globals": "^15.15.0",
+    "pngjs": "^7.0.0",
+    "prettier": "^3.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.71.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "zod": "^3.24.1",
+    "uiohook-napi": "^1.5.5"
+  }
+}

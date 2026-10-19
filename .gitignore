@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-scripts/
+release/
+
+# Development data
+*.local.*
+data/
+
+# Environment
+.env
+.env.*
+
+# Agent token
+agent-token*
+
+# OS junk
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Coverage
+coverage/
+
+# Sprite packs (user data)
+packs/*
+!packs/README.md
+
+# TypeScript
+*.tsbuildinfo
+
+# Third-party / personal art never goes in the repo (docs/SPEC.md section 3.1).
+# It lives here locally and is turned into packs under packs/ (also ignored).
+assets/goku/sprites/
+assets/goku/sheets/

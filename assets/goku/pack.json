@@ -1,0 +1,17 @@
+{
+  "name": "Default (original placeholder)",
+  "author": "saiyan-desk-pet contributors",
+  "version": "2.0.0",
+  "license": "MIT",
+  "facing": "right",
+  "rendering": "pixelated",
+  "effects": {
+    "kamehameha": {
+      "image": "placeholder/beam.png",
+      "originX": 0,
+      "originY": 22,
+      "handX": 48,
+      "handY": 30
+    }
+  }
+}

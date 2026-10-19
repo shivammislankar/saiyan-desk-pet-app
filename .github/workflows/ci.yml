@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm test
+
+      - name: Check privacy invariants
+        run: npm run check-privacy
+
+      - name: Check licenses
+        run: npm run check-licenses
+
+      - name: Verify default assets
+        run: npm run verify-assets
+
+      # Prints every advisory; fails only on high/critical. Moderate findings
+      # in build tooling with no upstream fix are tracked in docs/decisions.md.
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+
+      - name: Build
+        run: npm run build
+
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm test
+
+      - name: Check privacy invariants
+        run: npm run check-privacy
+
+      - name: Check licenses
+        run: npm run check-licenses
+
+      - name: Verify default assets
+        run: npm run verify-assets
+
+      # Prints every advisory; fails only on high/critical. Moderate findings
+      # in build tooling with no upstream fix are tracked in docs/decisions.md.
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+
+      - name: Build
+        run: npm run build

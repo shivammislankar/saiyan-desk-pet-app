@@ -1,0 +1,53 @@
+appId: com.saiyandeskpet.desktop
+productName: Saiyan Desk Pet
+copyright: Copyright © 2026 saiyan-desk-pet contributors
+# uiohook-napi ships N-API prebuilds (win32-x64, darwin-x64/arm64) that are
+# ABI-stable across Electron versions, so no native rebuild is needed.
+npmRebuild: false
+
+directories:
+  output: release
+  buildResources: build
+
+# Only the built app and the repo's own (original) assets. Local sprite packs
+# in packs/ are personal art and must never end up in an installer.
+files:
+  - dist/**/*
+  - assets/**/*
+  - "!assets/goku/sprites/**"
+  - "!assets/goku/sheets/**"
+  - "!**/*.ts"
+  - "!**/*.map"
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  shortcutName: Saiyan Desk Pet
+  artifactName: ${productName}-Setup-${version}.${ext}
+
+portable:
+  artifactName: ${productName}-portable-${version}.${ext}
+
+# Unsigned by default (SPEC section 25.3). Add signing/notarization and an
+# entitlements file here once a Developer ID is available; see docs/decisions.md.
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  category: public.app-category.entertainment
+
+dmg:
+  artifactName: ${productName}-${version}-${arch}.${ext}
