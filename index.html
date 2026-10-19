@@ -334,7 +334,7 @@
     const releases = `https://github.com/${REPO}/releases/latest`;
     for (const id of ["dl-setup", "dl-portable", "dl-all"]) document.getElementById(id).href = releases;
     document.getElementById("src-link").href = `https://github.com/${REPO}`;
-    document.getElementById("privacy-link").href = `https://github.com/${REPO}/blob/master/docs/privacy.md`;
+    document.getElementById("privacy-link").href = `https://github.com/${REPO}/blob/main/docs/privacy.md`;
 
     fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
