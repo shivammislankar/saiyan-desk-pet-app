@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Saiyan Desk Pet</title>
+  <meta name="description" content="A tiny pixel fighter for your Windows desktop. He throws a punch every time you type, fires an energy beam on command and keeps your to-do list." />
+  <link rel="icon" href="assets/idle.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky: #e6efed;
+      --paper: #f7faf9;
+      --ink: #1e1a22;
+      --ink-soft: #4d4a55;
+      --gi: #1f7a6f;
+      --gi-bright: #2a9d8f;
+      --band: #d63a3a;
+      --beam: #7fe3ff;
+      --line: #c9d8d4;
+      --display: "Chakra Petch", system-ui, sans-serif;
+      --text: "Instrument Sans", system-ui, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --sky: #14211f;
+        --paper: #1b2a28;
+        --ink: #eef3f1;
+        --ink-soft: #a9b8b4;
+        --gi: #4cc3b3;
+        --gi-bright: #4cc3b3;
+        --band: #ff6b5e;
+        --line: #2c3f3c;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    body {
+      overflow-x: clip;
+      background: var(--sky);
+      color: var(--ink);
+      font: 400 17px/1.6 var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    a:focus-visible, button:focus-visible, .stage:focus-visible {
+      outline: 3px solid var(--band);
+      outline-offset: 3px;
+    }
+    img.px { image-rendering: pixelated; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+    header.top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 0;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font: 700 18px/1 var(--display); text-decoration: none; }
+    .brand img { width: 32px; height: 32px; }
+    .top nav { display: flex; gap: 22px; font-size: 15px; }
+    .top nav a { text-decoration: none; color: var(--ink-soft); }
+    .top nav a:hover { color: var(--ink); }
+
+    /* Hero: copy on the left, a live "desktop" on the right */
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 48px;
+      align-items: center;
+      padding: 40px 0 72px;
+    }
+    h1 {
+      font: 700 clamp(40px, 6vw, 64px)/1.02 var(--display);
+      letter-spacing: -0.01em;
+      max-width: 11ch;
+    }
+    .lede { margin-top: 20px; font-size: 19px; color: var(--ink-soft); max-width: 34ch; }
+    .cta { margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--band); color: #fff;
+      font: 700 18px/1 var(--display);
+      padding: 16px 22px; border-radius: 6px;
+      text-decoration: none;
+      box-shadow: 0 3px 0 #9e2626;
+    }
+    .btn:hover { filter: brightness(1.06); }
+    .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #9e2626; }
+    .btn svg { width: 20px; height: 20px; }
+    .meta { font-size: 14px; color: var(--ink-soft); }
+    .meta a { color: var(--ink-soft); }
+
+    /* The stage: a pretend desktop with an app window and the pet on top */
+    .stage {
+      position: relative;
+      aspect-ratio: 7 / 5;
+      border-radius: 10px;
+      background:
+        radial-gradient(120% 90% at 85% 10%, #bfe3dc 0%, transparent 60%),
+        linear-gradient(160deg, #d3e6e2, #a9cfc8);
+      overflow: visible; /* the beam is allowed to fly out across the page */
+      cursor: text;
+      border: 1px solid var(--line);
+      z-index: 1;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .stage {
+        background:
+          radial-gradient(120% 90% at 85% 10%, #2b4b46 0%, transparent 60%),
+          linear-gradient(160deg, #1f3532, #142624);
+      }
+    }
+    .app-window {
+      position: absolute; left: 6%; top: 9%; width: 58%; height: 70%;
+      background: var(--paper); border-radius: 6px;
+      box-shadow: 0 10px 30px rgba(20, 50, 46, 0.18);
+      padding: 34px 18px 18px;
+    }
+    .app-window::before {
+      content: ""; position: absolute; top: 12px; left: 14px;
+      width: 46px; height: 8px;
+      background: radial-gradient(circle 4px at 4px 4px, #e9877d 99%, transparent),
+                  radial-gradient(circle 4px at 23px 4px, #e8c46c 99%, transparent),
+                  radial-gradient(circle 4px at 42px 4px, #7cc49a 99%, transparent);
+    }
+    .app-window p {
+      font-size: 13px; line-height: 1.5; color: var(--ink-soft);
+      white-space: pre-wrap; overflow-wrap: anywhere;
+      height: 100%; overflow: hidden;
+    }
+    .caret { display: inline-block; width: 1px; height: 1em; background: var(--ink); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+
+    canvas#pet {
+      position: absolute; image-rendering: pixelated;
+      left: 50%; bottom: 6%;
+      pointer-events: none;
+    }
+    .chant {
+      position: absolute; left: 0; top: 0;
+      font: 700 18px/1 var(--display); color: #fff;
+      background: var(--ink); padding: 6px 10px; border-radius: 6px;
+      pointer-events: none; white-space: nowrap;
+    }
+    .chant:empty { display: none; }
+    .stage-hint {
+      position: absolute; right: 12px; bottom: 10px;
+      font-size: 13px; color: #1c4741; background: rgba(255, 255, 255, 0.7);
+      padding: 4px 10px; border-radius: 999px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .stage-hint { background: rgba(0, 0, 0, 0.45); color: #d7ecE8; }
+    }
+    .stage-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .stage-controls button {
+      font: 600 14px/1 var(--text); color: var(--ink);
+      background: var(--paper); border: 1px solid var(--line);
+      padding: 9px 14px; border-radius: 6px; cursor: pointer;
+    }
+    .stage-controls button:hover { border-color: var(--gi); }
+    .stage-controls kbd {
+      font: 600 12px/1 var(--text); padding: 2px 6px; margin-left: 6px;
+      border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; color: var(--ink-soft);
+    }
+
+    /* Features: sprite + short text, laid out as a strip, not cards */
+    section { padding: 72px 0; border-top: 1px solid var(--line); }
+    h2 { font: 700 clamp(28px, 3.4vw, 38px)/1.1 var(--display); max-width: 20ch; }
+    .features {
+      margin-top: 40px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px;
+    }
+    .feature .sprite {
+      width: 96px; height: 96px; margin-left: -12px;
+      background-repeat: no-repeat; background-size: auto 96px;
+      image-rendering: pixelated;
+    }
+    .feature h3 { font: 700 19px/1.2 var(--display); margin: 10px 0 8px; }
+    .feature p { font-size: 16px; color: var(--ink-soft); }
+
+    /* Install: a real sequence, so it is numbered */
+    .steps { margin-top: 36px; list-style: none; counter-reset: step; display: grid; gap: 28px; max-width: 720px; }
+    .steps li { counter-increment: step; display: grid; grid-template-columns: 48px 1fr; gap: 16px; }
+    .steps li::before {
+      content: counter(step);
+      width: 40px; height: 40px; border-radius: 50%;
+      display: grid; place-items: center;
+      font: 700 18px/1 var(--display); color: #fff; background: var(--gi);
+    }
+    .steps h3 { font: 700 19px/1.3 var(--display); margin: 6px 0 4px; }
+    .steps p { color: var(--ink-soft); }
+    .steps strong { color: var(--ink); font-weight: 600; }
+
+    .controls-table { margin-top: 32px; border-collapse: collapse; width: 100%; max-width: 720px; font-size: 16px; }
+    .controls-table td { padding: 12px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .controls-table td:first-child { width: 42%; font-weight: 600; padding-right: 16px; }
+
+    footer { padding: 40px 0 56px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-soft); }
+    footer p + p { margin-top: 10px; }
+    footer .links { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 18px; }
+
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; gap: 32px; padding-top: 16px; }
+      .features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .top nav a:not(:last-child) { display: none; }
+    }
+    @media (max-width: 520px) {
+      .wrap { padding: 0 16px; }
+      .features { grid-template-columns: 1fr; }
+      .app-window p { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="#"><img class="px" src="assets/idle.png" alt="" />Saiyan Desk Pet</a>
+      <nav>
+        <a href="#features">What he does</a>
+        <a href="#install">Install</a>
+        <a href="#download" class="dl-link">Download</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="hero" id="download">
+        <div>
+          <h1>A tiny fighter for your desktop.</h1>
+          <p class="lede">He floats above your windows, throws a punch every time you type, fires an energy beam when you ask and keeps your to-do list. Free for Windows.</p>
+          <div class="cta">
+            <a class="btn" id="dl-setup" href="#">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 3h2v10.17l3.59-3.58L18 11l-6 6-6-6 1.41-1.41L11 13.17zM5 19h14v2H5z"/></svg>
+              Download for Windows
+            </a>
+            <span class="meta" id="dl-meta">Windows 10 and 11, 64-bit</span>
+          </div>
+          <p class="meta" style="margin-top:14px">No install? Get the <a id="dl-portable" href="#">portable version</a>. Mac builds are on the <a id="dl-all" href="#">releases page</a>.</p>
+        </div>
+
+        <div>
+          <div class="stage" id="stage" tabindex="0" role="application"
+               aria-label="Live demo. Type to make the fighter punch and kick, press Alt twice for the beam.">
+            <div class="app-window"><p id="typed">Click here and type. Space kicks, Enter uppercuts, tap Alt twice to charge up.<span class="caret"></span></p></div>
+            <canvas id="pet" width="64" height="64" aria-hidden="true"></canvas>
+            <span class="chant" id="chant" aria-hidden="true"></span>
+            <span class="stage-hint" id="hint">Click, then type</span>
+          </div>
+          <div class="stage-controls" aria-label="Demo buttons">
+            <button type="button" data-act="punch">Punch<kbd>A</kbd></button>
+            <button type="button" data-act="kick">Kick<kbd>Space</kbd></button>
+            <button type="button" data-act="beam">Energy beam<kbd>Alt Alt</kbd></button>
+          </div>
+        </div>
+      </div>
+
+      <section id="features">
+        <h2>He fights along, then gets out of the way.</h2>
+        <div class="features">
+          <div class="feature">
+            <div class="sprite" style="background-image:url(assets/strikes.png); background-position: -96px 0" aria-hidden="true"></div>
+            <h3>Fights while you type</h3>
+            <p>Every key is a punch or a kick. Space kicks, Enter throws an uppercut, Backspace blocks.</p>
+          </div>
+          <div class="feature">
+            <div class="sprite" style="background-image:url(assets/kamehameha_charge.png); background-position: -288px 0" aria-hidden="true"></div>
+            <h3>Charges an energy beam</h3>
+            <p>Tap Alt twice. He chants, charges and fires a beam across your screen. It's only visual, so nothing you click is affected.</p>
+          </div>
+          <div class="feature">
+            <div class="sprite" style="background-image:url(assets/think.png)" aria-hidden="true"></div>
+            <h3>Keeps your to-do list</h3>
+            <p>Click him and a small list opens beside him. Add, tick off and edit tasks. They're saved between restarts.</p>
+          </div>
+          <div class="feature">
+            <div class="sprite" style="background-image:url(assets/block.png)" aria-hidden="true"></div>
+            <h3>Stays out of your way</h3>
+            <p>He stands still when idle and never steals focus. Drag and throw him anywhere; he remembers where you left him.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="install">
+        <h2>Install in a minute</h2>
+        <ol class="steps">
+          <li>
+            <div>
+              <h3>Download and open the installer</h3>
+              <p>Run <strong>Saiyan Desk Pet Setup</strong> and pick where to install it. The portable version needs no install at all.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h3>Get past the blue Windows warning</h3>
+              <p>Windows may say <strong>"Windows protected your PC"</strong> because the app isn't signed, which is normal for small free apps. Click <strong>More info</strong>, then <strong>Run anyway</strong>. Some antivirus tools also flag apps that listen to the keyboard.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h3>Say hi</h3>
+              <p>He appears in the middle of your screen. Find the orange icon near the clock (it may be under the <strong>^</strong> arrow) to turn on sound or quit.</p>
+            </div>
+          </li>
+        </ol>
+
+        <table class="controls-table" aria-label="Controls">
+          <tbody>
+            <tr><td>Move him</td><td>Press and drag. Let go while moving to throw him.</td></tr>
+            <tr><td>To-do list</td><td>Click him. Click again or press Esc to close.</td></tr>
+            <tr><td>Energy beam</td><td>Tap Alt twice quickly. Wait 3 seconds between beams.</td></tr>
+            <tr><td>Sound, quit</td><td>The orange tray icon near the clock. Sound starts off.</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <footer>
+      <div class="links">
+        <a id="src-link" href="#">Source code on GitHub</a>
+        <a id="privacy-link" href="#">Privacy</a>
+      </div>
+      <p>Private by design: nothing you type is recorded, stored or sent anywhere. There's no tracking or analytics.</p>
+      <p>Unofficial, non-commercial fan project. Not affiliated with, endorsed by or sponsored by Akira Toriyama, Bird Studio, Shueisha, Toei Animation, Bandai Namco or any rights holder. The fighter shown here is original art.</p>
+    </footer>
+  </div>
+
+  <script>
+    // ---- Download links: always point at the latest public release -------
+    const REPO = "shivammislankar/saiyan-desk-pet-app";
+    const releases = `https://github.com/${REPO}/releases/latest`;
+    for (const id of ["dl-setup", "dl-portable", "dl-all"]) document.getElementById(id).href = releases;
+    document.getElementById("src-link").href = `https://github.com/${REPO}`;
+    document.getElementById("privacy-link").href = `https://github.com/${REPO}/blob/master/docs/privacy.md`;
+
+    fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((rel) => {
+        const find = (re) => rel.assets.find((a) => re.test(a.name));
+        const setup = find(/Setup.*\.exe$/i);
+        const portable = find(/portable.*\.exe$/i);
+        if (setup) {
+          document.getElementById("dl-setup").href = setup.browser_download_url;
+          const mb = Math.round(setup.size / 1048576);
+          document.getElementById("dl-meta").textContent =
+            `Version ${rel.tag_name.replace(/^v/, "")}, ${mb} MB. Windows 10 and 11, 64-bit`;
+        }
+        if (portable) document.getElementById("dl-portable").href = portable.browser_download_url;
+      })
+      .catch(() => {}); // the releases page links above still work
+
+    // ---- Live demo --------------------------------------------------------
+    const stage = document.getElementById("stage");
+    const canvas = document.getElementById("pet");
+    const ctx = canvas.getContext("2d");
+    const chantEl = document.getElementById("chant");
+    const typed = document.getElementById("typed");
+    const hint = document.getElementById("hint");
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const load = (n) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.src = `assets/${n}.png`; });
+    const F = 64; // frame size
+    let sheets = {};
+    let pose = { sheet: "idle", frame: 0 };
+    let busyUntil = 0;
+    let kame = null;
+
+    function scale() {
+      // whole-pixel scaling keeps the pixel art crisp
+      const h = stage.clientHeight;
+      return Math.max(2, Math.floor((h * 0.62) / F));
+    }
+    function layout() {
+      const s = scale();
+      canvas.style.width = canvas.style.height = `${F * s}px`;
+      canvas.style.marginLeft = `${-F * s * 0.55}px`;
+    }
+    function draw() {
+      const img = sheets[pose.sheet];
+      if (!img) return;
+      ctx.clearRect(0, 0, F, F);
+      ctx.drawImage(img, pose.frame * F, 0, F, F, 0, 0, F, F);
+    }
+    function set(sheet, frame) { pose = { sheet, frame }; draw(); }
+
+    function strike(frame) {
+      if (kame) return;
+      set("strikes", frame);
+      busyUntil = performance.now() + 160;
+      setTimeout(() => { if (!kame && performance.now() >= busyUntil) set("idle", 0); }, 170);
+    }
+    const punch = () => strike(Math.floor(Math.random() * 4));
+    const kick = () => strike(5 + Math.floor(Math.random() * 3));
+
+    function placeChant(text) {
+      chantEl.textContent = text;
+      const s = scale();
+      const r = canvas.getBoundingClientRect(), st = stage.getBoundingClientRect();
+      chantEl.style.left = `${r.left - st.left + r.width / 2 - chantEl.offsetWidth / 2}px`;
+      chantEl.style.top = `${r.top - st.top - chantEl.offsetHeight + 2 * s}px`;
+    }
+
+    function beam() {
+      if (kame) return;
+      const words = ["Ka-", "Ka-me-", "Ka-me-ha-", "Ka-me-ha-me-"];
+      const timers = [];
+      kame = timers;
+      words.forEach((w, i) => timers.push(setTimeout(() => { set("kamehameha_charge", i); placeChant(w); }, i * 350)));
+      timers.push(setTimeout(() => {
+        set("kamehameha_fire", 0);
+        placeChant("HA!");
+        fireBeam();
+      }, 1400));
+      timers.push(setTimeout(() => {
+        kame = null; chantEl.textContent = ""; set("idle", 0);
+      }, 2500));
+    }
+
+    function fireBeam() {
+      const s = scale();
+      const b = new Image();
+      b.src = "assets/beam.png";
+      b.className = "px";
+      // hand position in the fire frame and the beam's attach point (pack.json)
+      const handX = 48, handY = 30, originY = 22;
+      const r = canvas.getBoundingClientRect(), st = stage.getBoundingClientRect();
+      Object.assign(b.style, {
+        position: "absolute",
+        left: `${r.left - st.left + handX * s}px`,
+        top: `${r.top - st.top + (handY - originY) * s}px`,
+        width: `${150 * s}px`,
+        height: `${44 * s}px`,
+        transformOrigin: "0 50%",
+        pointerEvents: "none",
+      });
+      stage.appendChild(b);
+      const anim = reduceMotion
+        ? b.animate([{ opacity: 1 }, { opacity: 1, offset: 0.7 }, { opacity: 0 }], { duration: 1100 })
+        : b.animate(
+            [
+              { transform: "scaleX(0.05)", opacity: 0.6 },
+              { transform: "scaleX(1)", opacity: 1, offset: 0.16 },
+              { transform: "scaleX(1)", opacity: 1, offset: 0.68 },
+              { transform: "scaleX(1)", opacity: 0 },
+            ],
+            { duration: 1100, easing: "ease-out" }
+          );
+      anim.onfinish = () => b.remove();
+    }
+
+    // Typing into the pretend app window drives the fighter.
+    let text = "";
+    function type(ch) {
+      text = (text + ch).slice(-400);
+      typed.innerHTML = "";
+      typed.append(document.createTextNode(text));
+      const c = document.createElement("span"); c.className = "caret"; typed.append(c);
+    }
+
+    let lastAlt = 0;
+    stage.addEventListener("keydown", (e) => {
+      if (e.ctrlKey || e.metaKey) return;
+      if (e.key === "Alt") { e.preventDefault(); return; }
+      if (e.key === " ") { e.preventDefault(); type(" "); kick(); return; }
+      if (e.key === "Enter") { e.preventDefault(); type("\n"); strike(2 + Math.floor(Math.random() * 2)); return; }
+      if (e.key === "Backspace") { e.preventDefault(); text = text.slice(0, -1); type(""); strike(0); return; }
+      if (e.key.length === 1 && !e.altKey) { type(e.key); punch(); }
+    });
+    stage.addEventListener("keyup", (e) => {
+      if (e.key !== "Alt") return;
+      e.preventDefault();
+      const now = performance.now();
+      if (now - lastAlt < 400) { beam(); lastAlt = 0; } else lastAlt = now;
+    });
+    stage.addEventListener("focus", () => { hint.textContent = "Type away"; if (!text) { text = ""; type(""); } });
+    stage.addEventListener("blur", () => { hint.textContent = "Click, then type"; });
+    stage.addEventListener("click", () => stage.focus());
+
+    document.querySelectorAll(".stage-controls button").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        ({ punch, kick, beam })[btn.dataset.act]();
+      })
+    );
+
+    Promise.all(["idle", "strikes", "kamehameha_charge", "kamehameha_fire"].map(load)).then(([idle, strikes, charge, fire]) => {
+      sheets = { idle, strikes, kamehameha_charge: charge, kamehameha_fire: fire };
+      layout(); draw();
+    });
+    addEventListener("resize", layout);
+  </script>
+</body>
+</html>
