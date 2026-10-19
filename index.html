@@ -137,7 +137,7 @@
     @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
 
     canvas#pet {
-      position: absolute; image-rendering: pixelated;
+      position: absolute;
       left: 50%; bottom: 6%;
       pointer-events: none;
     }
@@ -246,7 +246,7 @@
           <div class="stage" id="stage" tabindex="0" role="application"
                aria-label="Live demo. Type to make the fighter punch and kick, press Alt twice for the beam.">
             <div class="app-window"><p id="typed">Click here and type. Space kicks, Enter uppercuts, tap Alt twice to charge up.<span class="caret"></span></p></div>
-            <canvas id="pet" width="64" height="64" aria-hidden="true"></canvas>
+            <canvas id="pet" width="256" height="256" aria-hidden="true"></canvas>
             <span class="chant" id="chant" aria-hidden="true"></span>
             <span class="stage-hint" id="hint">Click, then type</span>
           </div>
@@ -324,7 +324,7 @@
         <a id="privacy-link" href="#">Privacy</a>
       </div>
       <p>Private by design: nothing you type is recorded, stored or sent anywhere. There's no tracking or analytics.</p>
-      <p>Unofficial, non-commercial fan project. Not affiliated with, endorsed by or sponsored by Akira Toriyama, Bird Studio, Shueisha, Toei Animation, Bandai Namco or any rights holder. The fighter shown here is original art.</p>
+      <p>Unofficial, non-commercial fan project. Not affiliated with, endorsed by or sponsored by Akira Toriyama, Bird Studio, Shueisha, Toei Animation, Bandai Namco or any rights holder.</p>
     </footer>
   </div>
 
@@ -362,7 +362,7 @@
     const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const load = (n) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.src = `assets/${n}.png`; });
-    const F = 64; // frame size
+    const F = 256; // frame size
     let sheets = {};
     let pose = { sheet: "idle", frame: 0 };
     let busyUntil = 0;
@@ -371,7 +371,7 @@
     function scale() {
       // whole-pixel scaling keeps the pixel art crisp
       const h = stage.clientHeight;
-      return Math.max(2, Math.floor((h * 0.62) / F));
+      return (h * 0.8) / F;
     }
     function layout() {
       const s = scale();
@@ -425,13 +425,13 @@
       b.src = "assets/beam.png";
       b.className = "px";
       // hand position in the fire frame and the beam's attach point (pack.json)
-      const handX = 48, handY = 30, originY = 22;
+      const handX = 203, handY = 115, originY = 131;
       const r = canvas.getBoundingClientRect(), st = stage.getBoundingClientRect();
       Object.assign(b.style, {
         position: "absolute",
         left: `${r.left - st.left + handX * s}px`,
         top: `${r.top - st.top + (handY - originY) * s}px`,
-        width: `${150 * s}px`,
+        width: `${398 * s}px`,
         height: `${44 * s}px`,
         transformOrigin: "0 50%",
         pointerEvents: "none",
